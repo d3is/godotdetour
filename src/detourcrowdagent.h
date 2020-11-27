@@ -56,6 +56,8 @@ namespace godot
         bool    avoidOtherAgents;   // If this agent should avoid other agents.
         int     obstacleAvoidance;  // How much this agent should avoid obstacles. 0 - 3, with 0 being low and 3 high avoidance.
         float   separationWeight;   // How strongly the other agents should try to avoid this agent (if they have avoidOtherAgents set).
+
+        float   arrivalDistance;    // Minimum arrival distance before firing arrived_at_target signal.
     };
 
     // Different states that an agent can be in
@@ -183,6 +185,11 @@ namespace godot
          * @brief Removes the agent from all crowds it is in and frees all associated memory.
          */
         void destroy();
+
+        /**
+         * @brief Minimum arrival distance before firing arrived_at_target signal.
+         */
+        float arrivalDistance;
 
     private:
         dtCrowdAgent*                   _agent;

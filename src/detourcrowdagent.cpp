@@ -25,6 +25,7 @@ DetourCrowdAgentParameters::_register_methods()
     register_property<DetourCrowdAgentParameters, bool>("avoidOtherAgents", &DetourCrowdAgentParameters::avoidOtherAgents, true);
     register_property<DetourCrowdAgentParameters, int>("obstacleAvoidance", &DetourCrowdAgentParameters::obstacleAvoidance, 0);
     register_property<DetourCrowdAgentParameters, float>("separationWeight", &DetourCrowdAgentParameters::separationWeight, 0.0f);
+    register_property<DetourCrowdAgentParameters, float>("arrivalDistance", &DetourCrowdAgentParameters::arrivalDistance, 0.1f);
 }
 
 void
@@ -37,7 +38,9 @@ DetourCrowdAgent::_register_methods()
     register_property<DetourCrowdAgent, Vector3>("position", &DetourCrowdAgent::_position, Vector3(0.0f, 0.0f, 0.0f));
     register_property<DetourCrowdAgent, Vector3>("velocity", &DetourCrowdAgent::_velocity, Vector3(0.0f, 0.0f, 0.0f));
     register_property<DetourCrowdAgent, Vector3>("target", &DetourCrowdAgent::_targetPosition, Vector3(0.0f, 0.0f, 0.0f));
+    register_property<DetourCrowdAgent, float>("distanceToTarget", &DetourCrowdAgent::_lastDistanceToTarget, 0.0f);
     register_property<DetourCrowdAgent, bool>("isMoving", &DetourCrowdAgent::_isMoving, false);
+    register_property<DetourCrowdAgent, float>("arrivalDistance", &DetourCrowdAgent::arrivalDistance, 0.1f);
 
     register_signal<DetourCrowdAgent>("arrived_at_target", "node", Variant::OBJECT);
     register_signal<DetourCrowdAgent>("no_progress", "node", Variant::OBJECT, "distanceLeft", Variant::REAL);
@@ -382,7 +385,7 @@ DetourCrowdAgent::update(float secondsSinceLastTick)
             }
 
             // Arrived?
-            if (distanceToTarget < 0.1f)
+            if (distanceToTarget < arrivalDistance)
             {
                 _isMoving = false;
                 _crowd->resetMoveTarget(_agentIndex);
