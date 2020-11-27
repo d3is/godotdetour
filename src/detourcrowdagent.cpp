@@ -38,7 +38,9 @@ DetourCrowdAgent::_register_methods()
     register_property<DetourCrowdAgent, Vector3>("position", &DetourCrowdAgent::_position, Vector3(0.0f, 0.0f, 0.0f));
     register_property<DetourCrowdAgent, Vector3>("velocity", &DetourCrowdAgent::_velocity, Vector3(0.0f, 0.0f, 0.0f));
     register_property<DetourCrowdAgent, Vector3>("target", &DetourCrowdAgent::_targetPosition, Vector3(0.0f, 0.0f, 0.0f));
+    register_property<DetourCrowdAgent, Vector3>("safeTarget", &DetourCrowdAgent::_nearestSafeTargetPosition, Vector3(0.0f, 0.0f, 0.0f));
     register_property<DetourCrowdAgent, float>("distanceToTarget", &DetourCrowdAgent::_lastDistanceToTarget, 0.0f);
+    register_property<DetourCrowdAgent, float>("distanceToSafeTarget", &DetourCrowdAgent::_lastDistanceToSafeTarget, 0.0f);
     register_property<DetourCrowdAgent, bool>("isMoving", &DetourCrowdAgent::_isMoving, false);
     register_property<DetourCrowdAgent, float>("arrivalDistance", &DetourCrowdAgent::arrivalDistance, 0.1f);
 
@@ -236,6 +238,9 @@ DetourCrowdAgent::applyNewTarget()
     {
         ERR_PRINT("Unable to request detour move target.");
     }
+
+    _nearestSafeTargetPosition = Vector3(finalTargetPos[0], finalTargetPos[1], finalTargetPos[2]);
+
     _state = AGENT_STATE_GOING_TO_TARGET;
 }
 
@@ -337,6 +342,7 @@ DetourCrowdAgent::update(float secondsSinceLastTick)
 
             // Get distance to target and other statistics
             float distanceToTarget = _targetPosition.distance_to(_position);
+            float safeDistanceToTarget = _nearestSafeTargetPosition.distance_to(_position);
             _distanceTime += secondsSinceLastTick;
             _distanceTotal += fabs(_lastDistanceToTarget - distanceToTarget);
 
@@ -385,7 +391,7 @@ DetourCrowdAgent::update(float secondsSinceLastTick)
             }
 
             // Arrived?
-            if (distanceToTarget < arrivalDistance)
+            if (safeDistanceToTarget < arrivalDistance)
             {
                 _isMoving = false;
                 _crowd->resetMoveTarget(_agentIndex);
@@ -398,6 +404,7 @@ DetourCrowdAgent::update(float secondsSinceLastTick)
                 emit_signal("arrived_at_target", this);
             }
             _lastDistanceToTarget = distanceToTarget;
+            _lastDistanceToSafeTarget = safeDistanceToTarget;
             break;
         }
     }

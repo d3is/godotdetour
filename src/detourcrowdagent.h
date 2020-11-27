@@ -215,6 +215,8 @@ namespace godot
         Vector3 _lastPosition;
         float   _movementTime;
         float   _movementOverTime;
+        Vector3 _nearestSafeTargetPosition;
+        float   _lastDistanceToSafeTarget;
 
         std::chrono::system_clock::time_point lastUpdateTime;
     };
