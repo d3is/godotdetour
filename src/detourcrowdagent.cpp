@@ -4,6 +4,7 @@
 #include <DetourCrowd.h>
 #include <DetourNavMeshQuery.h>
 #include "util/detourinputgeometry.h"
+#include <random>
 
 using namespace godot;
 
@@ -33,6 +34,7 @@ DetourCrowdAgent::_register_methods()
 {
     register_method("moveTowards", &DetourCrowdAgent::moveTowards);
     register_method("stop", &DetourCrowdAgent::stop);
+    register_method("findRandomPoint", &DetourCrowdAgent::findRandomPoint);
     register_method("getPredictedMovement", &DetourCrowdAgent::getPredictedMovement);
 
     register_property<DetourCrowdAgent, Vector3>("position", &DetourCrowdAgent::_position, Vector3(0.0f, 0.0f, 0.0f));
@@ -196,6 +198,39 @@ DetourCrowdAgent::moveTowards(Vector3 position)
     _movementTime = 0.0f;
     _movementOverTime = 0.0f;
     _lastPosition = _position;
+}
+
+static float frand()
+{
+    /*
+    double lower_bound = 0;
+    double upper_bound = 1;
+    std::uniform_real_distribution<double> unif(lower_bound, upper_bound);
+    std::default_random_engine re;
+    double a_random_double = unif(re);
+    return (float) a_random_double;
+    */
+    static std::default_random_engine e;
+    static std::uniform_real_distribution<> dis(0, 1); // rage 0 - 1
+    return dis(e);
+}
+
+Vector3
+DetourCrowdAgent::findRandomPoint()
+{
+    dtPolyRef targetRef;
+    float randomTargetPos[3];
+    randomTargetPos[0] = 0.0f;
+    randomTargetPos[1] = 0.0f;
+    randomTargetPos[2] = 0.0f;
+    dtStatus status = _query->findRandomPoint(_filter, frand, &targetRef, randomTargetPos);
+    if (dtStatusFailed(status))
+    {
+        ERR_PRINT(String("findRandomPoint: findRandomPoint failed."));
+        return Vector3(-9999, -9999, -9999);
+    }
+
+    return Vector3(randomTargetPos[0], randomTargetPos[1], randomTargetPos[2]);
 }
 
 void

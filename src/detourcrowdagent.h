@@ -156,6 +156,11 @@ namespace godot
         void moveTowards(Vector3 position);
 
         /**
+         * @brief Will find a random position on the navmesh.
+         */
+        Vector3 findRandomPoint();
+
+        /**
          * @brief Will fill the passed vector with the current movement target, THEN RESET IT.
          * @return True if there was a new target.
          */
